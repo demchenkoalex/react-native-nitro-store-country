@@ -1,38 +1,170 @@
-# react-native-nitro-template
+# react-native-nitro-store-country
 
-This is a template for Nitro Modules.
+⚡️ Lightning-fast store country detection for React Native using [Nitro Modules](https://nitro.margelo.com)
+
+Get the user's App Store (iOS) or Google Play (Android) country code with a single call. Built with Nitro for maximum performance.
+
+## Features
+
+- ⚡️ **Lightning-fast** - Built with Nitro Modules for maximum performance
+- 🎯 **Accurate** - Gets store country from StoreKit (iOS) and Google Play Billing (Android)
+- 💾 **Fetch once** - Queries store APIs once and saves the result
+- 🔄 **Force refresh** - Option to refetch when needed
+- 📱 **System country** - Access device locale country when store country is unavailable
+- 🍎 **[iOS] Auto-fallback** - Automatically uses system country for non-App Store builds (TestFlight returns "USA")
+- 🍎 **[iOS] Alpha-2 codes** - Converts StoreKit's alpha-3 codes to alpha-2 format
+- ✨ **TypeScript** - Full type safety out of the box
+- 🎨 **Simple API** - Just one method and one property
+
+## Installation
+
+```bash
+npm install react-native-nitro-store-country react-native-nitro-modules
+```
+
+```bash
+yarn add react-native-nitro-store-country react-native-nitro-modules
+```
+
+```bash
+bun add react-native-nitro-store-country react-native-nitro-modules
+```
+
+### iOS
+
+```bash
+cd ios && pod install
+```
+
+### Android
+
+No additional steps required. The library uses autolinking.
+
+### Expo
+
+Works with Expo Development Builds via EAS:
+
+```bash
+npx expo install react-native-nitro-store-country react-native-nitro-modules
+eas build --profile development
+```
+
+> **Note:** Not compatible with Expo Go (requires native code).
 
 ## Usage
 
-Clone this repo, and change all `$$*$$` names according to your `nitro.json` file.
+### Basic Usage
+
+```typescript
+import { StoreCountry } from 'react-native-nitro-store-country'
+
+// Get store country (saves result after first call)
+const storeCountry = await StoreCountry.getStoreCountry()
+console.log(storeCountry) // "US", "GB", "DE", etc. or undefined
+
+// Get device/system country (synchronous)
+const systemCountry = StoreCountry.systemCountry
+console.log(systemCountry) // "US", "GB", "DE", etc.
+```
+
+### Force Refresh
+
+```typescript
+// Force refetch when needed
+const freshCountry = await StoreCountry.getStoreCountry(true)
+```
+
+### React Hook Example
+
+```typescript
+import { useEffect, useState } from 'react'
+import { StoreCountry } from 'react-native-nitro-store-country'
+
+const useStoreCountry = () => {
+  const [country, setCountry] = useState(StoreCountry.systemCountry)
+
+  useEffect(() => {
+    StoreCountry.getStoreCountry().then(result => {
+      // Update to store country if available, otherwise keep system country
+      if (result !== undefined) {
+        setCountry(result)
+      }
+    })
+  }, [])
+
+  return country
+}
+
+const App = () => {
+  const country = useStoreCountry()
+
+  return (
+    <View>
+      <Text>Country: {country ?? 'Unknown'}</Text>
+    </View>
+  )
+}
+```
+
+## API Reference
+
+### `getStoreCountry(force?: boolean): Promise<string | undefined>`
+
+Gets the user's store country code (ISO 3166-1 alpha-2).
+
+**Parameters:**
+
+- `force` (optional): If `true`, forces a fresh fetch from the store API, ignoring any previously saved result. Default: `false`
+
+**Returns:**
+
+- `Promise<string | undefined>` - Two-letter country code (e.g., `"US"`, `"GB"`) or `undefined` if unavailable
+
+**Behavior:**
+
+- First call: Fetches from native store API (StoreKit/Google Play Billing)
+- Subsequent calls: Returns saved result
+- Saves `undefined` results to avoid repeated failed API calls
+- Pass `force: true` to ignore saved result
+
+### `systemCountry: string | undefined`
+
+The device's system locale country (synchronous, readonly).
+
+**Returns:**
+
+- `string | undefined` - Two-letter country code from device locale settings
+
+**Source:**
+
+- **iOS:** `Locale.current.region?.identifier`
+- **Android:** `Locale.getDefault().country`
+
+## Platform-Specific Notes
+
+### iOS
+
+- **App Store builds:** Returns accurate store country from StoreKit
+- **TestFlight/Debug/Simulator:** Automatically falls back to `systemCountry` (StoreKit returns "USA" in these environments, so the library uses system locale instead)
+- **Alpha-3 to Alpha-2 conversion:** Converts StoreKit's 3-letter country codes (e.g., "USA") to 2-letter ISO 3166-1 alpha-2 codes (e.g., "US") to match `systemCountry` format
+- **Automatic fallback:** Only happens on iOS for non-App Store builds. On App Store, returns StoreKit's value directly
+
+### Android
+
+- Uses Google Play Billing Library to fetch store country
+- Returns `undefined` if:
+  - Device doesn't have Google Play Services
+  - User is not signed into Google Play
+  - Billing client connection fails
 
 ## Contributing
 
-Contribute a change to this template to update it for newer React Native versions.
+See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository.
 
-## Structure
+## License
 
-- [`android/`](android): All your `android`-specific implementations.
-  - [`build.gradle`](android/build.gradle): The gradle build file. This contains four important pieces:
-    1. Standard react-native library boilerplate code
-    2. Configures Kotlin (`apply plugin: 'org.jetbrains.kotlin.android'`)
-    3. Adds all Nitrogen files (`apply from: '.../NitroStoreCountry+autolinking.gradle'`)
-    4. Triggers the native C++ build (via CMake/`externalNativeBuild`)
-  - [`CMakeLists.txt`](android/CMakeLists.txt): The CMake build file to build C++ code. This contains four important pieces:
-    1. Creates a library called `NitroStoreCountry` (same as in `nitro.json`)
-    2. Adds all Nitrogen files (`include(.../NitroStoreCountry+autolinking.cmake)`)
-    3. Adds all custom C++ files (only `HybridTestObjectCpp.cpp`)
-    4. Adds a `cpp-adapter.cpp` file, which autolinks all C++ HybridObjects (only `HybridTestObjectCpp`)
-  - [`src/main/java/com/margelo/nitro/nitrostorecountry/`](android/src/main/java/com/margelo/nitro/nitrostorecountry/): All Kotlin implementations.
-    - [`NitroStoreCountryPackage.kt`](android/src/main/java/com/margelo/nitro/nitrostorecountry/NitroStoreCountryPackage.kt): The react-native package. You need this because the react-native CLI only adds libraries if they have a `*Package.kt` file. In here, you can autolink all Kotlin HybridObjects.
-- [`cpp/`](cpp): All your cross-platform implementations. (only `HybridTestObjectCpp.cpp`)
-- [`ios/`](ios): All your iOS-specific implementations.
-- [`nitrogen/`](nitrogen): All files generated by nitrogen. You should commit this folder to git.
-- [`src/`](src): The TypeScript codebase. This defines all HybridObjects and loads them at runtime.
-  - [`specs/`](src/specs): All HybridObject types. Nitrogen will run on all `*.nitro.ts` files.
-- [`nitro.json`](nitro.json): The configuration file for nitrogen. This will define all native namespaces, as well as the library name.
-- [`NitroStoreCountry.podspec`](NitroStoreCountry.podspec): The iOS podspec build file to build the iOS code. This contains three important pieces:
-  1. Specifies the Pod's name. This must be identical to the name specified in `nitro.json`.
-  2. Adds all of your `.swift` or `.cpp` files (implementations).
-  3. Adds all Nitrogen files (`add_nitrogen_files(s)`)
-- [`package.json`](package.json): The npm package.json file. `react-native-nitro-modules` should be a `peerDependency`.
+MIT
+
+---
+
+Made with ❤️ using [Nitro Modules](https://nitro.margelo.com)

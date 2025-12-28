@@ -1,7 +1,7 @@
 {
   "name": "react-native-nitro-store-country",
-  "version": "0.0.1",
-  "description": "react-native-nitro-store-country",
+  "version": "1.0.0",
+  "description": "Get the user's App Store (iOS) or Google Play (Android) country code with a single call. Built with Nitro for maximum performance.",
   "main": "lib/index",
   "module": "lib/index",
   "types": "lib/index.d.ts",
@@ -37,18 +37,27 @@
   },
   "keywords": [
     "react-native",
-    "nitro"
+    "nitro",
+    "nitro-modules",
+    "store-country",
+    "app-store",
+    "google-play",
+    "country-code",
+    "storekit",
+    "billing",
+    "ios",
+    "android"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mrousavy/nitro.git"
+    "url": "git+https://github.com/demchenkoalex/react-native-nitro-store-country.git"
   },
-  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "author": "Oleksandr Demchenko <alexdemchenko@yahoo.com> (https://github.com/demchenkoalex)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mrousavy/nitro/issues"
+    "url": "https://github.com/demchenkoalex/react-native-nitro-store-country/issues"
   },
-  "homepage": "https://github.com/mrousavy/nitro#readme",
+  "homepage": "https://github.com/demchenkoalex/react-native-nitro-store-country#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
