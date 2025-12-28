@@ -42,11 +42,24 @@ No additional steps required. The library uses autolinking.
 
 ### Expo
 
-Works with Expo Development Builds via EAS:
+Works with Expo Development Builds. You have two options:
+
+#### Option 1: Using EAS (Expo Application Services)
 
 ```bash
 npx expo install react-native-nitro-store-country react-native-nitro-modules
-eas build --profile development
+eas build --platform ios --profile development
+# or
+eas build --platform android --profile development
+```
+
+#### Option 2: Without EAS
+
+```bash
+npx expo install react-native-nitro-store-country react-native-nitro-modules expo-dev-client
+npx expo run:ios
+# or
+npx expo run:android
 ```
 
 > **Note:** Not compatible with Expo Go (requires native code).
